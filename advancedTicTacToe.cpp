@@ -11,7 +11,7 @@ const char EMPTY = '-';
 const char PLAYER_X = 'X';
 const char PLAYER_O = 'O';
 int currentPlayer = 1;
-
+bool draw=false;
 // Structure to represent a move
 struct Move {
     int row, col;
@@ -51,9 +51,9 @@ bool isGameOver(const vector<vector<char>>& board, char player) {
         for (int j = 0; j < SIZE; ++j) {
             if (board[i][j] == EMPTY)
                 return false;
-        }
-    }
-    return true;
+        }  
+    } draw =true;
+     return true; 
 }
 
 // Function to evaluate the score of the board
@@ -170,7 +170,7 @@ void aiMove(vector<vector<char>>& board) {
 void playTwoPlayers() {
     vector<vector<char>> board(SIZE, vector<char>(SIZE, EMPTY));
     
-    while (!isGameOver(board, PLAYER_X) && !isGameOver(board, PLAYER_O)) {
+    while (!isGameOver(board, PLAYER_X) && !isGameOver(board, PLAYER_O) ) {
         displayBoard(board);
         cout << "Player " << (currentPlayer == 1 ? "X" : "O") << "'s turn." << endl;
         playerMove(board);
@@ -178,9 +178,9 @@ void playTwoPlayers() {
     }
 
     displayBoard(board);
-    if (isGameOver(board, PLAYER_X)) cout << "Player X wins!" << endl;
-    else if (isGameOver(board, PLAYER_O)) cout << "Player O wins!" << endl;
-    else cout << "It's a tie!" << endl;
+    if (isGameOver(board, PLAYER_X)&& !draw) cout << "Player X wins!" << endl;
+    else if (isGameOver(board, PLAYER_O)&& !draw) cout << "Player O wins!" << endl;
+    else if (draw) cout << "It's a tie!" << endl;
 }
 
 // Function to let the human player play against the AI
@@ -201,7 +201,8 @@ void playAgainstAI() {
     displayBoard(board);
     if (isGameOver(board, PLAYER_X)) cout << "Player X wins!" << endl;
     else if (isGameOver(board, PLAYER_O)) cout << "Player O wins!" << endl;
-    else cout << "It's a tie!" << endl;
+    else if(draw) cout << "It's a tie!" << endl;
+    
 }
 
 int main() {
