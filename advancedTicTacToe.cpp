@@ -82,42 +82,46 @@ int evaluate(const vector<vector<char>>& board) {
 }
 
 // Minimax function with alpha-beta pruning
-int minimax(vector<vector<char>>& board, int depth, bool isMax, int alpha, int beta) {
+int minimax(vector<vector<char>>& board, int depth, bool isMaximizingPlayer, int alpha, int beta) {
     int score = evaluate(board);
-    if (score != 0) return score;
-    if (isGameOver(board, PLAYER_X) || isGameOver(board, PLAYER_O)) return score;
-    if (depth >= SIZE * SIZE) return 0;
 
-    if (isMax) {
-        int best = INT_MIN;
-        for (int i = 0; i < SIZE; ++i) {
-            for (int j = 0; j < SIZE; ++j) {
+    // Base case: terminal state or maximum depth reached
+    if (score == 10 || score == -10 || depth == 0)
+        return score;
+
+    if (isMaximizingPlayer) {
+        int bestScore = INT_MIN;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
                 if (board[i][j] == EMPTY) {
                     board[i][j] = PLAYER_X;
-                    best = max(best, minimax(board, depth + 1, !isMax, alpha, beta));
-                    alpha = max(alpha, best);
+                    bestScore = max(bestScore, minimax(board, depth - 1, false, alpha, beta));
                     board[i][j] = EMPTY;
-                    if (beta <= alpha) break;
+                    alpha = max(alpha, bestScore);
+                    if (beta <= alpha)
+                        break;
                 }
             }
         }
-        return best;
+        return bestScore;
     } else {
-        int best = INT_MAX;
-        for (int i = 0; i < SIZE; ++i) {
-            for (int j = 0; j < SIZE; ++j) {
+        int bestScore = INT_MAX;
+        for (int i = 0; i < SIZE; i++) {
+            for (int j = 0; j < SIZE; j++) {
                 if (board[i][j] == EMPTY) {
                     board[i][j] = PLAYER_O;
-                    best = min(best, minimax(board, depth + 1, !isMax, alpha, beta));
-                    beta = min(beta, best);
+                    bestScore = min(bestScore, minimax(board, depth - 1, true, alpha, beta));
                     board[i][j] = EMPTY;
-                    if (beta <= alpha) break;
+                    beta = min(beta, bestScore);
+                    if (beta <= alpha)
+                        break;
                 }
             }
         }
-        return best;
+        return bestScore;
     }
 }
+
 
 // Function to find the best move using minimax algorithm with alpha-beta pruning
 Move findBestMove(vector<vector<char>>& board) {
