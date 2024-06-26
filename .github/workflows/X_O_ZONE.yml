@@ -10,9 +10,6 @@ env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: ./TicTacToe.sln
 
-  # Configuration type to build.
-  BUILD_CONFIGURATION: Release
-
 permissions:
   contents: read
 
@@ -32,17 +29,14 @@ jobs:
       with:
         dotnet-version: '6.0.x' # Adjust to match your .NET version
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v1.0.2
-
     - name: Restore NuGet packages
-      run: dotnet restore ${{ env.SOLUTION_FILE_PATH }}
+      run: dotnet restore "${{ github.workspace }}/TicTacToe.sln"
 
     - name: Build
-      run: dotnet build ${{ env.SOLUTION_FILE_PATH }} --configuration ${{ env.BUILD_CONFIGURATION }}
+      run: dotnet build "${{ github.workspace }}/TicTacToe.sln" --configuration Release
 
     - name: Run tests
-      run: dotnet test ${{ env.SOLUTION_FILE_PATH }} --configuration ${{ env.BUILD_CONFIGURATION }} --no-build
+      run: dotnet test "${{ github.workspace }}/TicTacToe.sln" --configuration Release --no-build
 
     - name: Archive build artifacts
       if: success()
@@ -50,4 +44,4 @@ jobs:
       with:
         name: build
         path: |
-          **/bin/${{ env.BUILD_CONFIGURATION }}/**
+          **/bin/Release/**
