@@ -14,7 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: configure
-      run: ./configure
+      run: |
+        cd path/to/your/project  # Change directory to where your configure script is located
+        ./configure  # Adjust the path if necessary
     - name: make
       run: make
     - name: make check
