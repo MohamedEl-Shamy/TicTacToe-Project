@@ -14,7 +14,7 @@ jobs:
       run: sudo apt-get install -y g++
 
     - name: Build C++ code
-      run: g++ -o Tic_Tac_Toe Tic_Tac_Toe.cpp
+      run: g++ -o oop oop.cpp
 
     - name: Run C++ code
-      run: ./Tic_Tac_Toe
+      run: ./oop
