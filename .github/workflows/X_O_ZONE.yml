@@ -1,10 +1,13 @@
-name: Tic-Tac-Toe CI/CD
+name: CMake on a single platform
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
 
 jobs:
   build:
@@ -14,24 +17,45 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v3
+    - name: Set up Qt
+      uses: jurplel/install-qt-action@v2
       with:
-        dotnet-version: '6.0.x' # Adjust to match your .NET version
+        version: '5.15.2'
+        host: windows
+        target: desktop
+        dir: C:\Qt
+        arch: 'win64_mingw81'
 
-    - name: Restore NuGet packages
-      run: dotnet restore "${{ github.workspace }}/TicTacToe-Project/TicTacToe.sln"
+    - name: Install dependencies
+      run: |
+        choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+        choco install ninja
+
+    - name: Set SQLite environment variables
+      shell: pwsh
+      run: |
+        $env:SQLITE3_INCLUDE_DIR="${{github.workspace}}"
+        $env:SQLITE3_LIBRARY="${{github.workspace}}\sqlite3.dll"
+
+    - name: Remove previous build directory
+      shell: pwsh
+      run: |
+        if (Test-Path -Path build) {
+          Remove-Item -Recurse -Force build
+        }
+
+    - name: Configure CMake
+      shell: pwsh
+      run: cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="C:\Qt\5.15.2\mingw81_64" -DSQLITE3_INCLUDE_DIR="$env:SQLITE3_INCLUDE_DIR" -DSQLITE3_LIBRARY="$env:SQLITE3_LIBRARY"
 
     - name: Build
-      run: dotnet build "${{ github.workspace }}/TicTacToe-Project/TicTacToe.sln" --configuration Release
+      shell: pwsh
+      run: cmake --build build --config ${{env.BUILD_TYPE}}
 
-    - name: Run tests
-      run: dotnet test "${{ github.workspace }}/TicTacToe-Project/TicTacToe.sln" --configuration Release --no-build
+    - name: Ensure database file is present
+      shell: pwsh
+      run: dir project_database.db
 
-    - name: Archive build artifacts
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: build
-        path: |
-          **/bin/Release/**
+    - name: List generated files
+      shell: pwsh
+      run: Get-ChildItem -Recurse build
