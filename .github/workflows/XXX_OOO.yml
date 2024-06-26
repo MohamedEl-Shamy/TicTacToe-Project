@@ -21,6 +21,14 @@ jobs:
     - name: List directory contents
       run: ls -R ${{github.workspace}}
 
+    - name: Check CMakeLists.txt existence
+      run: |
+        if [ ! -f "${{github.workspace}}/CMakeLists.txt" ]; then
+          echo "CMakeLists.txt not found in the repository root."
+          ls -R ${{github.workspace}}
+          exit 1
+        fi
+
     - name: Configure CMake
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
