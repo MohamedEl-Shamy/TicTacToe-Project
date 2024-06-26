@@ -33,11 +33,12 @@ jobs:
       uses: microsoft/setup-msbuild@v1.0.2
 
     - name: Verify solution file exists
+      shell: pwsh
       run: |
-        if [ ! -f ${{env.SOLUTION_FILE_PATH}} ]; then
-          echo "Solution file not found: ${{env.SOLUTION_FILE_PATH}}"
+        if (-Not (Test-Path -Path $env:SOLUTION_FILE_PATH)) {
+          Write-Error "Solution file not found: $env:SOLUTION_FILE_PATH"
           exit 1
-        fi
+        }
 
     - name: Restore NuGet packages
       run: dotnet restore ${{env.SOLUTION_FILE_PATH}}
