@@ -1,0 +1,49 @@
+name: Tic-Tac-Toe CI/CD
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Path to the solution file relative to the root of the project.
+  SOLUTION_FILE_PATH: ./TicTacToe.sln
+
+  # Configuration type to build.
+  BUILD_CONFIGURATION: Release
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x' # Adjust to match your .NET version
+
+    - name: Add MSBuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Restore NuGet packages
+      run: dotnet restore ${{env.SOLUTION_FILE_PATH}}
+
+    - name: Build
+      run: dotnet build ${{env.SOLUTION_FILE_PATH}} --configuration ${{env.BUILD_CONFIGURATION}}
+
+    - name: Run tests
+      run: dotnet test ${{env.SOLUTION_FILE_PATH}} --configuration ${{env.BUILD_CONFIGURATION}} --no-build
+
+    - name: Archive build artifacts
+      if: success()
+      uses: actions/upload-artifact@v3
+      with:
+        name: build
+        path: |
+          **/bin/${{env.BUILD_CONFIGURATION}}/**
