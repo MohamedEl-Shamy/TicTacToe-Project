@@ -6,13 +6,6 @@ on:
   pull_request:
     branches: [ "master" ]
 
-env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: ./TicTacToe.sln
-
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: windows-latest
@@ -21,22 +14,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: List files in directory
-      run: ls -R
-
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x' # Adjust to match your .NET version
 
     - name: Restore NuGet packages
-      run: dotnet restore "${{ github.workspace }}/TicTacToe.sln"
+      run: dotnet restore "${{ github.workspace }}/TicTacToe-Project/TicTacToe.sln"
 
     - name: Build
-      run: dotnet build "${{ github.workspace }}/TicTacToe.sln" --configuration Release
+      run: dotnet build "${{ github.workspace }}/TicTacToe-Project/TicTacToe.sln" --configuration Release
 
     - name: Run tests
-      run: dotnet test "${{ github.workspace }}/TicTacToe.sln" --configuration Release --no-build
+      run: dotnet test "${{ github.workspace }}/TicTacToe-Project/TicTacToe.sln" --configuration Release --no-build
 
     - name: Archive build artifacts
       if: success()
