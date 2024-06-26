@@ -10,7 +10,6 @@
 #include <iostream>
 #include <string>
 
-
 #include "bcrypt/BCrypt.hpp"
 #include "bcrypt/crypt_gensalt.h"
 #include "bcrypt/ow-crypt.h"

@@ -3,7 +3,6 @@
 #include <limits>
 #include <vector>
 
-
 using namespace std;
 
 class TicTacToe {

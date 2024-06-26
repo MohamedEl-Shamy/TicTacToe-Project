@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-
 using namespace std;
 
 const int SIZE = 3;
