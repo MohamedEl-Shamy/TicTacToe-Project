@@ -8,7 +8,7 @@ on:
 
 env:
   # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: ./TicTacToe.sln
+  SOLUTION_FILE_PATH: TicTacToe/TicTacToe.sln  # Adjust this path to where your solution file is located
 
   # Configuration type to build.
   BUILD_CONFIGURATION: Release
@@ -21,15 +21,23 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x' # Adjust to match your .NET version
+        dotnet-version: '6.0.x'  # Adjust to match your .NET version
 
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Verify solution file exists
+      run: |
+        if [ ! -f ${{env.SOLUTION_FILE_PATH}} ]; then
+          echo "Solution file not found: ${{env.SOLUTION_FILE_PATH}}"
+          exit 1
+        fi
 
     - name: Restore NuGet packages
       run: dotnet restore ${{env.SOLUTION_FILE_PATH}}
