@@ -2,11 +2,10 @@
 
 using namespace std;
 
-int main (){
+int main() {
 
+  cout << "HELLO GUYS , IT IS OUR PROJECT" << endl;
+  cout << "Let's do it!";
 
-    cout<<"HELLO GUYS , IT IS OUR PROJECT"<<endl;
-    cout<<"Let's do it!";
-
-    return 0;
+  return 0;
 }
