@@ -1,0 +1,84 @@
+name: CMake CI/CD with Visual Studio 2022 and SQLite
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+        build_type: [Release]
+        c_compiler: [gcc, clang, cl]
+        include:
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup MSBuild (Windows only)
+      if: matrix.os == 'windows-latest'
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: Install SQLite (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y sqlite3 libsqlite3-dev
+
+    - name: Set build output directory
+      id: set-build-dir
+      run: echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_ENV"
+
+    - name: Configure CMake with SQLite
+      run: >
+        cmake -B ${{ steps.set-build-dir.outputs.build-output-dir }}
+        -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        -DSQLITE3_INCLUDE_DIR:PATH=${{ github.workspace }}/sqlite/include
+        -DSQLITE3_LIBRARY:FILEPATH=${{ github.workspace }}/sqlite/lib/libsqlite3.a
+        -S ${{ github.workspace }}
+      env:
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+
+    - name: Build
+      run: cmake --build ${{ steps.set-build-dir.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+
+    - name: Test
+      working-directory: ${{ steps.set-build-dir.outputs.build-output-dir }}
+      run: ctest --build-config ${{ matrix.build_type }}
+
+    - name: Package (Windows only)
+      if: matrix.os == 'windows-latest'
+      run: |
+        # Package your application here for Windows deployment
+        # Example: create an installer or zip file
+        # You can use tools like NSIS or Inno Setup for creating installers
+
+    - name: Deploy (Ubuntu only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        # Deploy your application on Ubuntu
+        # Example: copy binaries to the deployment server
