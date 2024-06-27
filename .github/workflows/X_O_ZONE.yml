@@ -1,49 +1,29 @@
-name: oop
+name: C++ CI
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
-env:
-  # Path to the solution file relative to the root of the project.
-  SOLUTION_FILE_PATH: ./oop.sln
-
-  # Configuration type to build.
-  BUILD_CONFIGURATION: Release
-
-permissions:
-  contents: read
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-    - name: Set up .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '6.0.x' # Adjust to match your .NET version
-
-    - name: Add MSBuild to PATH
+    - name: Set up Visual Studio 2022
       uses: microsoft/setup-msbuild@v1.0.2
 
-    - name: Restore NuGet packages
-      run: dotnet restore ${{env.SOLUTION_FILE_PATH}}
+    - name: Install SQLite
+      run: |
+        curl -o sqlite.zip https://www.sqlite.org/2023/sqlite-dll-win64-x64-3410200.zip
+        tar -xf sqlite.zip
+        move sqlite3.dll C:\Windows\System32
 
-    - name: Build
-      run: dotnet build ${{env.SOLUTION_FILE_PATH}} --configuration ${{env.BUILD_CONFIGURATION}}
+    - name: Build C++ code
+      run: |
+        "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+        msbuild /p:Configuration=Release oop.sln
 
-    - name: Run tests
-      run: dotnet test ${{env.SOLUTION_FILE_PATH}} --configuration ${{env.BUILD_CONFIGURATION}} --no-build
-
-    - name: Archive build artifacts
-      if: success()
-      uses: actions/upload-artifact@v3
-      with:
-        name: build
-        path: |
-          **/bin/${{env.BUILD_CONFIGURATION}}/**
+    - name: Run C++ code
+      run: |
+        .\Release\oop.exe
