@@ -5,7 +5,6 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10  # Set a timeout for the job
 
     steps:
     - name: Checkout repository
@@ -16,9 +15,6 @@ jobs:
 
     - name: Build C++ code
       run: g++ -o oop oop.cpp
-
-    - name: Add debugging step
-      run: echo "Running C++ code..."
 
     - name: Run C++ code
       run: ./oop
