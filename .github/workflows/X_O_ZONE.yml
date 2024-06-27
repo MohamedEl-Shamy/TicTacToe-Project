@@ -1,0 +1,29 @@
+name: C++ CI
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Visual Studio 2022
+      uses: microsoft/setup-msbuild@v1.0.2
+
+    - name: Install SQLite
+      run: |
+        curl -o sqlite.zip https://www.sqlite.org/2023/sqlite-dll-win64-x64-3410200.zip
+        tar -xf sqlite.zip
+        move sqlite3.dll C:\Windows\System32
+
+    - name: Build C++ code
+      run: |
+        "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"
+        msbuild /p:Configuration=Release oop.sln
+
+    - name: Run C++ code
+      run: |
+        .\Release\oop.exe
